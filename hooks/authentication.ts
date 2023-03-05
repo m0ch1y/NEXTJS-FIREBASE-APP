@@ -2,11 +2,33 @@ import { getAuth, onAuthStateChanged, signInAnonymously } from "firebase/auth";
 import { atom, useRecoilState } from "recoil";
 import { User } from "../models/User";
 import { useEffect } from "react";
+import {
+  getFirestore,
+  collection,
+  doc,
+  getDoc,
+  setDoc,
+} from 'firebase/firestore'
 
 const userState = atom<User>({
   key: "user",
   default: null,
 });
+
+async function createUserIfNotFound(user: User) {
+  const db = getFirestore()
+  const usersCollection = collection(db, 'users')
+  const userRef = doc(usersCollection, user.uid)
+  const document = await getDoc(userRef)
+  if (document.exists()) {
+    // 書き込みの方が高いので！
+    return
+  }
+
+  await setDoc(userRef, {
+    name: 'taro' + new Date().getTime(),
+  })
+}
 
 export function useAuthentication() {
   const [user, setUser] = useRecoilState(userState);
@@ -24,16 +46,19 @@ export function useAuthentication() {
 
     onAuthStateChanged(auth, function (firebaseUser) {
       if (firebaseUser) {
-        console.log("Set user");
-        setUser({
+        const loginUser: User = {
           uid: firebaseUser.uid,
-          isAnoymous: firebaseUser.isAnonymous,
-        });
+          isAnonymous: firebaseUser.isAnonymous,
+          name: '',
+        }
+        setUser(loginUser)
+        createUserIfNotFound(loginUser)
       } else {
-        setUser(null);
+        // User is signed out.
+        setUser(null)
       }
     });
-  }, []);
+  }, [])
 
   return { user };
 }
