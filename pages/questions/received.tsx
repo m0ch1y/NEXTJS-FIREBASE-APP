@@ -15,6 +15,7 @@ import {
 } from "firebase/firestore";
 import useAuthentication from "../../hooks/authentication";
 import dayjs from "dayjs";
+import Link from "next/link";
 
 export default function QuestionsReceived() {
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -49,16 +50,7 @@ export default function QuestionsReceived() {
       setIsPaginationFinished(true);
       return;
     }
-
-    async function loadQuestions() {
-      const snapshot = await getDocs(createBaseQuery());
-
-      if (snapshot.empty) {
-        return;
-      }
-
-      appendQuestions(snapshot);
-    }
+    appendQuestions(snapshot);
   }
 
   async function loadNextQuestions() {
@@ -66,23 +58,23 @@ export default function QuestionsReceived() {
       return;
     }
 
-    function onScroll() {
-      if (isPaginationFinished) {
-        return;
-      }
+    // function onScroll() {
+    //   if (isPaginationFinished) {
+    //     return;
+    //   }
 
-      const container = scrollContainerRef.current;
-      if (container === null) {
-        return;
-      }
+    //   const container = scrollContainerRef.current;
+    //   if (container === null) {
+    //     return;
+    //   }
 
-      const rect = container.getBoundingClientRect();
-      if (rect.top + rect.height > window.innerHeight) {
-        return;
-      }
+    //   const rect = container.getBoundingClientRect();
+    //   if (rect.top + rect.height > window.innerHeight) {
+    //     return;
+    //   }
 
-      loadNextQuestions();
-    }
+    //   loadNextQuestions();
+    // }
 
     const lastQuestion = questions[questions.length - 1];
     const snapshot = await getDocs(
@@ -107,7 +99,23 @@ export default function QuestionsReceived() {
     loadQuestions();
   }, [process.browser, user]);
 
-  function onScroll() {}
+  function onScroll() {
+    if (isPaginationFinished) {
+      return;
+    }
+
+    const container = scrollContainerRef.current;
+    if (container === null) {
+      return;
+    }
+
+    const rect = container.getBoundingClientRect();
+    if (rect.top + rect.height > window.innerHeight) {
+      return;
+    }
+
+    loadNextQuestions();
+  }
 
   useEffect(() => {
     window.addEventListener("scroll", onScroll);
@@ -123,18 +131,28 @@ export default function QuestionsReceived() {
         <div className="row justify-content-center">
           <div className="col-12 col-md-6" ref={scrollContainerRef}>
             {questions.map((question) => (
-              <div className="card my-3" key={question.id}>
-                <div className="card-body">
-                  <div className="text-truncate text-dark">{question.body}</div>
-                  <div className="text-muted text-end">
-                    <small>
-                      {dayjs(question.createdAt.toDate()).format(
-                        "YYYY/MM/DD HH:mm"
-                      )}
-                    </small>
+              <Link
+                href={`/questions/${question.id}`}
+                key={question.id}
+                legacyBehavior
+              >
+                <a>
+                  <div className="card my-3" key={question.id}>
+                    <div className="card-body">
+                      <div className="text-truncate text-dark">
+                        {question.body}
+                      </div>
+                      <div className="text-muted text-end">
+                        <small>
+                          {dayjs(question.createdAt.toDate()).format(
+                            "YYYY/MM/DD HH:mm"
+                          )}
+                        </small>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
+                </a>
+              </Link>
             ))}
           </div>
         </div>
