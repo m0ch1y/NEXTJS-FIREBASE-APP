@@ -8,7 +8,7 @@ import {
   doc,
   getDoc,
   setDoc,
-} from 'firebase/firestore'
+} from "firebase/firestore";
 
 const userState = atom<User>({
   key: "user",
@@ -16,18 +16,18 @@ const userState = atom<User>({
 });
 
 async function createUserIfNotFound(user: User) {
-  const db = getFirestore()
-  const usersCollection = collection(db, 'users')
-  const userRef = doc(usersCollection, user.uid)
-  const document = await getDoc(userRef)
+  const db = getFirestore();
+  const usersCollection = collection(db, "users");
+  const userRef = doc(usersCollection, user.uid);
+  const document = await getDoc(userRef);
   if (document.exists()) {
     // 書き込みの方が高いので！
-    return
+    return;
   }
 
   await setDoc(userRef, {
-    name: 'taro' + new Date().getTime(),
-  })
+    name: "taro" + new Date().getTime(),
+  });
 }
 
 export function useAuthentication() {
@@ -49,16 +49,18 @@ export function useAuthentication() {
         const loginUser: User = {
           uid: firebaseUser.uid,
           isAnonymous: firebaseUser.isAnonymous,
-          name: '',
-        }
-        setUser(loginUser)
-        createUserIfNotFound(loginUser)
+          name: "",
+        };
+        setUser(loginUser);
+        createUserIfNotFound(loginUser);
       } else {
         // User is signed out.
-        setUser(null)
+        setUser(null);
       }
     });
-  }, [])
+  }, []);
 
   return { user };
 }
+
+export default useAuthentication;
