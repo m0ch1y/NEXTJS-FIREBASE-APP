@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import {
   collection,
@@ -16,6 +16,7 @@ import {
 import Layout from "../../components/Layout";
 import { Question } from "../../models/Question";
 import useAuthentication from "../../hooks/authentication";
+import { Answer } from "../../models/Answer";
 
 type Query = {
   id: string;
@@ -28,6 +29,7 @@ export default function QuestionsShow() {
   const [question, setQuestion] = useState<Question>(null);
   const [isSending, setIsSending] = useState(false);
   const [body, setBody] = useState("");
+  const [answer, setAnswer] = useState<Answer>(null);
 
   function getCollections() {
     const db = getFirestore();
@@ -52,11 +54,34 @@ export default function QuestionsShow() {
     const gotQuestion = questionDoc.data() as Question;
     gotQuestion.id = questionDoc.id;
     setQuestion(gotQuestion);
+
+    if (!gotQuestion.isReplied) {
+      return;
+    }
+
+    const answerSnapshot = await getDocs(
+      query(
+        answersCollection,
+        where("questionId", "==", gotQuestion.id),
+        limit(1)
+      )
+    );
+    if (answerSnapshot.empty) {
+      return;
+    }
+
+    const gotAnswer = answerSnapshot.docs[0].data() as Answer;
+    gotAnswer.id = answerSnapshot.docs[0].id;
+    setAnswer(gotAnswer);
   }
 
   useEffect(() => {
+    if (user === null) {
+      return;
+    }
+
     loadData();
-  }, [routerQuery.id]);
+  }, [query.id, user]);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -77,7 +102,14 @@ export default function QuestionsShow() {
       });
     });
 
-    setIsSending(false);
+    const now = new Date().getTime();
+    setAnswer({
+      id: "",
+      uid: user.uid,
+      questionId: question.id,
+      body,
+      createdAt: new Timestamp(now / 1000, now % 1000),
+    });
   }
 
   return (
@@ -85,37 +117,48 @@ export default function QuestionsShow() {
       <div className="row justify-content-center">
         <div className="col-12 col-md-6">
           {question && (
-            <div className="card">
-              <div className="card-body text-dark">{question.body}</div>
-            </div>
+            <>
+              <div className="card">
+                <div className="card-body text-black">{question.body}</div>
+              </div>
+
+              <section className="text-center mt-4">
+                <h2 className="h4">回答</h2>
+
+                {answer === null ? (
+                  <form onSubmit={onSubmit}>
+                    <textarea
+                      className="form-control"
+                      placeholder="おげんきですか？"
+                      rows={6}
+                      value={body}
+                      onChange={(e) => setBody(e.target.value)}
+                      required
+                    ></textarea>
+                    <div className="m-3">
+                      {isSending ? (
+                        <div
+                          className="spinner-border text-secondary"
+                          role="status"
+                        ></div>
+                      ) : (
+                        <button type="submit" className="btn btn-primary">
+                          回答する
+                        </button>
+                      )}
+                    </div>
+                  </form>
+                ) : (
+                  <div className="card">
+                    <div className="card-body text-left text-black">
+                      {answer.body}
+                    </div>
+                  </div>
+                )}
+              </section>
+            </>
           )}
         </div>
-        <section className="text-center mt-4">
-          <h2 className="h4">回答する</h2>
-
-          <form onSubmit={onSubmit}>
-            <textarea
-              className="form-control"
-              placeholder="おげんきですか？"
-              rows={6}
-              value={body}
-              onChange={(e) => setBody(e.target.value)}
-              required
-            ></textarea>
-            <div className="m-3">
-              {isSending ? (
-                <div
-                  className="spinner-border text-secondary"
-                  role="status"
-                ></div>
-              ) : (
-                <button type="submit" className="btn btn-primary">
-                  回答する
-                </button>
-              )}
-            </div>
-          </form>
-        </section>
       </div>
     </Layout>
   );
