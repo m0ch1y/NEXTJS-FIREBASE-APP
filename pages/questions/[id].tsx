@@ -81,7 +81,7 @@ export default function QuestionsShow() {
     }
 
     loadData();
-  }, [query.id, user]);
+  }, [routerQuery.id, user]);
 
   async function onSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
