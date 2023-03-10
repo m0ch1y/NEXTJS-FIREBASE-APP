@@ -20,7 +20,7 @@ import Link from "next/link";
 export default function QuestionsReceived() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [isPaginationFinished, setIsPaginationFinished] = useState(false);
-  const scrollContainerRef = useRef(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const { user } = useAuthentication();
 
@@ -28,7 +28,7 @@ export default function QuestionsReceived() {
     const db = getFirestore();
     return query(
       collection(db, "questions"),
-      where("receiverUid", "==", user.uid),
+      where("receiverUid", "==", user!.uid),
       orderBy("createdAt", "desc"),
       limit(10)
     );
@@ -57,24 +57,6 @@ export default function QuestionsReceived() {
     if (questions.length === 0) {
       return;
     }
-
-    // function onScroll() {
-    //   if (isPaginationFinished) {
-    //     return;
-    //   }
-
-    //   const container = scrollContainerRef.current;
-    //   if (container === null) {
-    //     return;
-    //   }
-
-    //   const rect = container.getBoundingClientRect();
-    //   if (rect.top + rect.height > window.innerHeight) {
-    //     return;
-    //   }
-
-    //   loadNextQuestions();
-    // }
 
     const lastQuestion = questions[questions.length - 1];
     const snapshot = await getDocs(

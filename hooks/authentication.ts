@@ -10,7 +10,7 @@ import {
   setDoc,
 } from "firebase/firestore";
 
-const userState = atom<User>({
+const userState = atom<User | null>({
   key: "user",
   default: null,
 });

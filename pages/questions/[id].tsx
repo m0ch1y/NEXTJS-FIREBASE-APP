@@ -26,10 +26,10 @@ export default function QuestionsShow() {
   const router = useRouter();
   const routerQuery = router.query as Query;
   const { user } = useAuthentication();
-  const [question, setQuestion] = useState<Question>(null);
+  const [question, setQuestion] = useState<Question | null>(null);
   const [isSending, setIsSending] = useState(false);
   const [body, setBody] = useState("");
-  const [answer, setAnswer] = useState<Answer>(null);
+  const [answer, setAnswer] = useState<Answer | null>(null);
 
   function getCollections() {
     const db = getFirestore();
@@ -92,12 +92,12 @@ export default function QuestionsShow() {
 
     await runTransaction(db, async (t) => {
       t.set(answerRef, {
-        uid: user.uid,
-        questionId: question.id,
+        uid: user!.uid,
+        questionId: question!.id,
         body,
         createdAt: serverTimestamp(),
       });
-      t.update(doc(questionsCollection, question.id), {
+      t.update(doc(questionsCollection, question!.id), {
         isReplied: true,
       });
     });
@@ -105,8 +105,8 @@ export default function QuestionsShow() {
     const now = new Date().getTime();
     setAnswer({
       id: "",
-      uid: user.uid,
-      questionId: question.id,
+      uid: user!.uid,
+      questionId: question!.id,
       body,
       createdAt: new Timestamp(now / 1000, now % 1000),
     });
