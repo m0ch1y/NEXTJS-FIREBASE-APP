@@ -26,9 +26,12 @@ export default function QuestionsReceived() {
 
   function createBaseQuery() {
     const db = getFirestore();
+    if (user === null) {
+      throw new Error("User not authenticated");
+    }
     return query(
       collection(db, "questions"),
-      where("receiverUid", "==", user!.uid),
+      where("receiverUid", "==", user.uid),
       orderBy("createdAt", "desc"),
       limit(10)
     );
@@ -44,6 +47,9 @@ export default function QuestionsReceived() {
   }
 
   async function loadQuestions() {
+    if (createBaseQuery() === undefined) {
+      return;
+    }
     const snapshot = await getDocs(createBaseQuery());
 
     if (snapshot.empty) {

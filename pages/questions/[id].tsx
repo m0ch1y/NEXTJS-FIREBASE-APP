@@ -89,11 +89,16 @@ export default function QuestionsShow() {
 
     const { db, questionsCollection, answersCollection } = getCollections();
     const answerRef = doc(answersCollection);
-
+    if (user === null) {
+      return;
+    }
+    if (question === null) {
+      return;
+    }
     await runTransaction(db, async (t) => {
       t.set(answerRef, {
-        uid: user!.uid,
-        questionId: question!.id,
+        uid: user.uid,
+        questionId: question.id,
         body,
         createdAt: serverTimestamp(),
       });

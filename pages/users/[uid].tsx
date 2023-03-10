@@ -47,10 +47,17 @@ export default function UserShow() {
 
     const db = getFirestore();
     setIsSending(true);
+    if (currentUser === null) {
+      return;
+    }
+
+    if (user === null) {
+      return;
+    }
 
     await addDoc(collection(db, "questions"), {
-      senderUid: currentUser!.uid,
-      receiverUid: user!.uid,
+      senderUid: currentUser.uid,
+      receiverUid: user.uid,
       body,
       isReplied: false,
       createdAt: serverTimestamp(),
