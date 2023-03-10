@@ -13,7 +13,7 @@ type Query = {
 };
 
 export default function UserShow() {
-  const [user, setUser] = useState<User>(null);
+  const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
   const query = router.query as Query;
   const { user: currentUser } = useAuthentication();
@@ -49,8 +49,8 @@ export default function UserShow() {
     setIsSending(true);
 
     await addDoc(collection(db, "questions"), {
-      senderUid: currentUser.uid,
-      receiverUid: user.uid,
+      senderUid: currentUser!.uid,
+      receiverUid: user!.uid,
       body,
       isReplied: false,
       createdAt: serverTimestamp(),
