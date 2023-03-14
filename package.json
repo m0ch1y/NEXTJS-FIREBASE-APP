@@ -12,7 +12,7 @@
   "dependencies": {
     "@mapbox/node-pre-gyp": "^1.0.10",
     "bootstrap": "^5.3.0-alpha1",
-    "canvas": "^2.11.0",
+    "canvas": "2.6.1",
     "dayjs": "^1.11.7",
     "eslint": "8.35.0",
     "eslint-config-next": "13.2.3",
