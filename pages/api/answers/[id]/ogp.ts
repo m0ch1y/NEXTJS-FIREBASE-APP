@@ -15,7 +15,7 @@ type SeparatedText = {
   remaining: string;
 };
 
-function createTextLine(context, text: string): SeparatedText {
+function createTextLine(context: any, text: string): SeparatedText {
   const maxWidth = 400;
 
   for (let i = 0; i < text.length; i++) {
@@ -34,7 +34,7 @@ function createTextLine(context, text: string): SeparatedText {
   };
 }
 
-function createTextLines(context, text: string): string[] {
+function createTextLines(context: any, text: string): string[] {
   const lines: string[] = [];
   let currentText = text;
 
