@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 import { ToastContainer } from "react-toastify";
 import Head from "next/head";
+import Link from "next/link";
 
 export default function Layout({ children }: { children: ReactNode }) {
   const title = "My質問回答サービス";
@@ -17,6 +18,10 @@ export default function Layout({ children }: { children: ReactNode }) {
           key="ogDescription"
           content={description}
         />
+        <link
+          href="https://fonts.googleapis.com/icon?family=Material+Icons"
+          rel="stylesheet"
+        ></link>
       </Head>
       <nav
         className="navbar navbar-expand-lg navbar-light mb-3"
@@ -37,6 +42,18 @@ export default function Layout({ children }: { children: ReactNode }) {
       </nav>
       <div className="container">{children}</div>
       <ToastContainer />
+      <nav
+        className="navbar navbar-expand-lg navbar-light mb-3"
+        style={{ backgroundColor: "#e3f2fd" }}
+      >
+        <div className="container">
+          <div className="mr-auto">
+            <a className="navbar-brand" href="1">
+              My質問サービス
+            </a>
+          </div>
+        </div>
+      </nav>
     </div>
   );
 }
